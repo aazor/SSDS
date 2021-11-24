@@ -65,47 +65,6 @@ convert_xfm -omat ${workdir}/"$i"/boundary_mask/transform/T1_to_nodif_bbr.mat -i
 flirt -in ${workdir}/"$i"/boundary_mask/MASK/T1.nii.gz -ref ${workdir}/"$i"/boundary_mask/nodif.nii.gz -out ${workdir}/"$i"/boundary_mask/MASK/T1_B0_bbr.nii.gz -applyxfm -init ${workdir}/"$i"/boundary_mask/transform/T1_to_nodif_bbr.mat
 done
 
-
-
-#Step 3-b. Registration of T1 to B0 when field map is not available
-#The following cells runs the registration of T1 to B0 when field map is not available using BBR. This requires an initial segmentation of the T1 and estimation of a boundary mask that will then be used with a BBR cost function and a standard affine registration.
-
-#Only uncomment if field map is not available
-# echo  " **** Segmentation in T1 and preparation of WM maps for BBR ****
-#  ---------------------------------------------------------------------"
- 
-#for i in `cat subjects.txt`;
-#do 5ttgen -nocrop fsl ${workdir}/"$i"/SSDS/MASK/T1_brain.nii.gz ${workdir}/"$i"/SSDS/MASK/5ttseg.mif -premasked -force;
-#mrtransform -interp nearest -template ${workdir}/"$i"/SSDS/MASK/T1_brain.nii.gz ${workdir}/"$i"/SSDS/MASK/5ttseg.mif ${workdir}/"$i"/SSDS/MASK/5ttseg2.mif -force;
-#mrconvert -coord 3 2 ${workdir}/"$i"/SSDS/MASK/5ttseg2.mif ${workdir}/"$i"/SSDS/MASK/wmseg.mif -force;
-#mrconvert ${workdir}/"$i"/SSDS/MASK/wmseg.mif ${workdir}/"$i"/SSDS/MASK/wmseg.nii.gz -force
-#done 
-
- #Boundary-based registration of T1 to B0
-
-#echo  " **** Calculating matrix to move T1 to B0 using BBR ****
-#	        -------------------------------------------------------"
-
-#	for i in `cat subjects.txt`;
-#	do 
-#	fslmaths ${workdir}/"$i"/SSDS/MASK/wmseg.nii.gz -bin ${workdir}/"$i"/SSDS/MASK/wmseg.nii.gz #binarize WM mask
-#	flirt -dof 6 -in ${workdir}/"$i"/SSDS/nodif_brain.nii.gz -ref ${workdir}/"$i"/SSDS/MASK/T1_brain.nii.gz -omat ${workdir}/"$i"/SSDS/transform/nodif2T1.mat -interp nearestneighbour; #estimate initial transform matrix from nodif to T1
-#	done
- 
-#	for i in `cat subjects.txt`;
-#	do flirt -dof 6 -in ${workdir}/"$i"/SSDS/nodif_brain.nii.gz -ref ${workdir}/"$i"/SSDS/MASK/T1_brain.nii.gz -out ${workdir}/"$i"/SSDS/MASK/nodif2T1_brain.nii.gz -wmseg ${workdir}/"$i"/SSDS/MASK/wmseg.nii.gz -init ${workdir}/"$i"/SSDS/transform/nodif2T1.mat -omat ${workdir}/"$i"/SSDS/transform/nodif2T1_bbr.mat  -cost bbr -schedule /usr/local/fsl/etc/flirtsch/bbr.sch; 
-
-# estimate transform matrix using BBR from nodif to T1
-
-#	convert_xfm -omat ${workdir}/"$i"/SSDS/transform/T1_to_nodif_bbr.mat -inverse ${workdir}/"$i"/SSDS/transform/nodif2T1_bbr.mat 
-
-#reverse matrix to obtain transformation of T1 to nodif
-
-#	flirt -in ${workdir}/"$i"/SSDS/MASK/T1_brain.nii.gz -ref ${workdir}/"$i"/SSDS/nodif_brain.nii.gz -out ${workdir}/"$i"/SSDS/MASK/T1_B0_bbr.nii.gz -applyxfm -init ${workdir}/"$i"/SSDS/transform/T1_to_nodif_bbr.mat 
-#apply BBR matrix to T1 image to move ot to nodif space and QC
-#	done
-
-
 #Step 4. Now working in diffusion space to estimate a 1-erosion whole-brain boundary map
 #The following cells runs the segmentation of the T1 brain image in diffusion space before estimating a whole brain boundary mask, a mask of the WM/CSF and WM/GM boundaries. Whole brain boundary is SSDS_B0. CSF boundary is SSDS_B0_csf, and GM boundary is SSDS_B0_csf. The last step exports the results in two separate CSV files.
 
